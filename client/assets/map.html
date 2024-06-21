@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>네이버 지도</title>
+    <script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId={ClientId}"></script>
+    <style>
+        #map {
+            width: 100%;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        var mapOptions = {
+            center: new naver.maps.LatLng(37.242962, 127.080061),
+            zoom: 16
+        };
+        var map = new naver.maps.Map('map', mapOptions);
+
+        var marker = new naver.maps.Marker({
+            position: new naver.maps.LatLng(37.242962, 127.080061),
+            title: '경희대학교 국제캠퍼스',
+            map: map
+        });
+
+        var contentString = [
+            '<div class="iw_inner" style="padding: 0px 20px 0px 20px">',
+            '   <h3>경희대학교 국제캠퍼스</h3>',
+            '   <p>경기도 용인서 덕영대로 1732<br>',
+            '   </p>',
+            '</div>'
+        ].join('');
+
+        var infowindow = new naver.maps.InfoWindow({
+            content: contentString
+        });
+
+        naver.maps.Event.addListener(marker, "click", function (e) {
+            if (infowindow.getMap()) {
+                infowindow.close();
+            } else {
+                infowindow.open(map, marker);
+            }
+        });
+
+        infowindow.open(map, marker);
+
+        // 현재 위치 가져오기 및 지도 업데이트 함수
+        function updateMapWithCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var currentLatLng = new naver.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                    map.setCenter(currentLatLng);
+                    map.setZoom(16);
+
+                    var currentLocationMarker = new naver.maps.Marker({
+                        position: currentLatLng,
+                        title: '현재 위치',
+                        map: map
+                    });
+
+                    var currentLocationInfo = new naver.maps.InfoWindow({
+                        content: '<div class="iw_inner" style="padding: 0px 20px 0px 20px"><h3>현재 위치</h3></div>'
+                    });
+
+                    naver.maps.Event.addListener(currentLocationMarker, "click", function (e) {
+                        if (currentLocationInfo.getMap()) {
+                            currentLocationInfo.close();
+                        } else {
+                            currentLocationInfo.open(map, currentLocationMarker);
+                        }
+                    });
+
+                    currentLocationInfo.open(map, currentLocationMarker);
+                }, function(error) {
+                    console.log("Error occurred. Error code: " + error.code);
+                    // 에러 처리 코드 추가 가능
+                });
+            } else {
+                console.log("Geolocation is not supported by this browser.");
+                // Geolocation을 지원하지 않는 브라우저 처리 코드 추가 가능
+            }
+        }
+
+        // 초기화 시 현재 위치로 지도 업데이트
+        updateMapWithCurrentLocation();
+    </script>
+</body>
+</html>
